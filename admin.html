@@ -72,80 +72,82 @@
             "Aunt Rachelle and Uncle Bob", "Cousin Bri", "Cousin Holly, Jeff and Emma"
         ];
 
+        const googleSheetUrl = "https://script.google.com/macros/s/AKfycbzpOMYI5Wn29Kui31x15E7-asZQWEil2J6C6YIwR8q4PzyuTfh4Kdt29Fvlg-TSnJxX6g/exec";
+
         window.onload = function() {
-            const submittedRSVPs = JSON.parse(localStorage.getItem('weddingGuestList')) || [];
             const masterTable = document.getElementById('master-table-body');
             const writeinTable = document.getElementById('writein-table-body');
             
-            let yesCount = 0;
-            let noCount = 0;
+            // Fetch live data from Google Sheets
+            fetch(googleSheetUrl)
+                .then(response => response.json())
+                .then(submittedRSVPs => {
+                    let yesCount = 0;
+                    let noCount = 0;
+                    let matchedIndices = [];
 
-            // Track which submissions matched our master list
-            let matchedIndices = [];
+                    // 1. Render Master List
+                    allowedGuestList.forEach(invitedName => {
+                        const matchIndex = submittedRSVPs.findIndex(rsvp => rsvp.name.toLowerCase() === invitedName.toLowerCase());
+                        const row = document.createElement('tr');
+                        let statusHTML = `<span class="status-not">No Response Yet</span>`;
+                        let dateHTML = "-";
 
-            // 1. Loop through your Master Invited List
-            allowedGuestList.forEach(invitedName => {
-                // Check if this specific master guest has submitted an RSVP
-                const matchIndex = submittedRSVPs.findIndex(rsvp => rsvp.name.toLowerCase() === invitedName.toLowerCase());
-                
-                const row = document.createElement('tr');
-                let statusHTML = `<span class="status-not">No Response Yet</span>`;
-                let dateHTML = "-";
+                        if (matchIndex !== -1) {
+                            matchedIndices.push(matchIndex);
+                            const guestResponse = submittedRSVPs[matchIndex];
+                            dateHTML = guestResponse.date;
+                            
+                            if (guestResponse.status === "Yes") {
+                                yesCount++;
+                                statusHTML = `<span class="status-yes">✅ Attending</span>`;
+                            } else {
+                                noCount++;
+                                statusHTML = `<span class="status-no">❌ Declined</span>`;
+                            }
+                        }
 
-                if (matchIndex !== -1) {
-                    matchedIndices.push(matchIndex); // Save index so we know it's accounted for
-                    const guestResponse = submittedRSVPs[matchIndex];
-                    dateHTML = guestResponse.date;
-                    
-                    if (guestResponse.status === "Yes") {
-                        yesCount++;
-                        statusHTML = `<span class="status-yes">✅ Attending</span>`;
-                    } else {
-                        noCount++;
-                        statusHTML = `<span class="status-no">❌ Declined</span>`;
-                    }
-                }
+                        row.innerHTML = `<td>${invitedName}</td><td>${statusHTML}</td><td>${dateHTML}</td>`;
+                        masterTable.appendChild(row);
+                    });
 
-                row.innerHTML = `<td>${invitedName}</td><td>${statusHTML}</td><td>${dateHTML}</td>`;
-                masterTable.appendChild(row);
-            });
-
-            // 2. Loop through responses to find write-ins (anything NOT matched in step 1)
-            let writeInCount = 0;
-            submittedRSVPs.forEach((rsvp, index) => {
-                if (!matchedIndices.includes(index)) {
-                    writeInCount++;
-                    const row = document.createElement('tr');
-                    let statusHTML = "";
-                    
-                    if (rsvp.status === "Yes") {
-                        yesCount++;
-                        statusHTML = `<span class="status-yes">✅ Attending (Unlisted)</span>`;
-                    } else {
-                        noCount++;
-                        statusHTML = `<span class="status-no">❌ Declined (Unlisted)</span>`;
-                    }
+                    // 2. Render Write-Ins
+                    let writeInCount = 0;
+                    submittedRSVPs.forEach((rsvp, index) => {
+                        if (!matchedIndices.includes(index)) {
+                            writeInCount++;
+                            const row = document.createElement('tr');
+                            let statusHTML = "";
+                            
+                            if (rsvp.status === "Yes") {
+                                yesCount++;
+                                statusHTML = `<span class="status-yes">✅ Attending (Unlisted)</span>`;
+                            } else {
+                                noCount++;
+                                statusHTML = `<span class="status-no">❌ Declined (Unlisted)</span>`;
+                            }
 
                     row.innerHTML = `<td>${rsvp.name}</td><td>${statusHTML}</td><td>${rsvp.date}</td>`;
-                    writeinTable.appendChild(row);
-                }
-            });
+                            writeinTable.appendChild(row);
+                        }
+                    });
 
-            if (writeInCount === 0) {
-                writeinTable.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No unlisted write-in guests.</td></tr>`;
-            }
+                    if (writeInCount === 0) {
+                        writeinTable.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No unlisted write-in guests.</td></tr>`;
+                    }
 
-            // Update stats layout counters
-            document.getElementById('count-total').innerText = submittedRSVPs.length;
-            document.getElementById('count-yes').innerText = yesCount;
-            document.getElementById('count-no').innerText = noCount;
-        }
+                    // Update Counters
+                    document.getElementById('count-total').innerText = submittedRSVPs.length;
+                    document.getElementById('count-yes').innerText = yesCount;
+                    document.getElementById('count-no').innerText = noCount;
+                })
+                .catch(err => {
+                    masterTable.innerHTML = `<tr><td colspan="3" style="text-align:center; color:red;">Error loading dashboard data.</td></tr>`;
+                });
+}
 
         function clearList() {
-            if(confirm("Are you sure you want to permanently clear your guest responses?")) {
-                localStorage.removeItem('weddingGuestList');
-                window.location.reload();
-            }
+            alert("To manage or reset your data, please delete or clear the rows directly inside your linked Google Sheet window.");
         }
     </script>
 </body>

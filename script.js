@@ -1,5 +1,6 @@
 // Variable to track the user's initial selection globally
 let userAttendingSelection = null;
+const googleSheetUrl = "https://script.google.com/macros/s/AKfycbzpOMYI5Wn29Kui31x15E7-asZQWEil2J6C6YIwR8q4PzyuTfh4Kdt29Fvlg-TSnJxX6g/exec";
 
 // Your Master Guest List Array
 const allowedGuestList = [
@@ -14,10 +15,8 @@ const allowedGuestList = [
     "Aunt Rachelle and Uncle Bob", "Cousin Bri", "Cousin Holly, Jeff and Emma"
 ];
 
-// Switch screens based on initial Yes/No click
 function handleInitialResponse(isAttending) {
     userAttendingSelection = isAttending;
-    
     document.getElementById('step-1').classList.add('hidden');
     document.getElementById('step-name').classList.remove('hidden');
     
@@ -30,7 +29,7 @@ function handleInitialResponse(isAttending) {
 }
 
 // Handle name submission and routing
-function submitResponse() {
+async function submitResponse() {
     const nameInput = document.getElementById('guest-name').value.trim();
     
     if (nameInput === "") {
@@ -39,47 +38,57 @@ function submitResponse() {
     }
     
     const lowerCaseInput = nameInput.toLowerCase();
+    const submitButton = document.querySelector('#step-name .btn');
     
-    // 1. Check for duplicate submissions in localStorage first
-    let submittedRSVPs = JSON.parse(localStorage.getItem('weddingGuestList')) || [];
-    const isDuplicate = submittedRSVPs.some(guest => guest.name.toLowerCase() === lowerCaseInput);
-    
-    if (isDuplicate) {
-        alert("An RSVP has already been submitted for this name! If you need to make adjustments, please contact us directly.");
-        return;
+    // Disable button during network save so they can't double-click
+    submitButton.disabled = true;
+    submitButton.innerText = "Saving...";
+
+    // 1. Fetch current live list from Google Sheets to check for duplicates
+    try {
+        const response = await fetch(googleSheetUrl);
+        const currentRSVPs = await response.json();
+        const isDuplicate = currentRSVPs.some(guest => guest.name.toLowerCase() === lowerCaseInput);
+        
+        if (isDuplicate) {
+            alert("An RSVP has already been submitted for this name! If you need to make adjustments, please contact us directly.");
+            submitButton.disabled = false;
+            submitButton.innerText = "Submit RSVP";
+            return;
+        }
+    } catch (e) {
+        console.error("Could not check duplicates, attempting save anyway.");
     }
 
-    // 2. Fall back to clean casing if it matches your list, otherwise save exactly what they wrote
+    // 2. Format name nicely if it matches master list
     let nameToSave = nameInput; 
     const matchedInviteName = allowedGuestList.find(guest => guest.toLowerCase() === lowerCaseInput);
     if (matchedInviteName) {
         nameToSave = matchedInviteName;
     }
     
-    // 3. Determine status text based on initial button selection
     const finalStatus = userAttendingSelection ? "Yes" : "No";
+    const todayDate = new Date().toLocaleDateString();
     
-    // 4. Save the response smoothly without alerts
-    saveResponse(nameToSave, finalStatus);
-    
-    // 5. Hide input screen and route to correct thank you layout
-    document.getElementById('step-name').classList.add('hidden');
-    if (userAttendingSelection) {
-        document.getElementById('step-thank-you-yes').classList.remove('hidden');
-    } else {
-        document.getElementById('step-thank-you-no').classList.remove('hidden');
-    }
-}
-
-// Save response to browser storage
-function saveResponse(name, status) {
-    let guestList = JSON.parse(localStorage.getItem('weddingGuestList')) || [];
-    
-    guestList.push({
-        name: name,
-        status: status,
-        date: new Date().toLocaleDateString()
+    // 3. Send data live to Google Sheets
+    fetch(googleSheetUrl, {
+        method: "POST",
+        mode: "no-cors", // Required to bypass Google browser security rules
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: nameToSave, status: finalStatus, date: todayDate })
+    })
+    .then(() => {
+        // Route to thank you screen
+        document.getElementById('step-name').classList.add('hidden');
+        if (userAttendingSelection) {
+            document.getElementById('step-thank-you-yes').classList.remove('hidden');
+        } else {
+            document.getElementById('step-thank-you-no').classList.remove('hidden');
+        }
+    })
+    .catch(err => {
+        alert("Something went wrong saving your RSVP. Please try again.");
+        submitButton.disabled = false;
+        submitButton.innerText = "Submit RSVP";
     });
-    
-    localStorage.setItem('weddingGuestList', JSON.stringify(guestList));
 }
