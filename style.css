@@ -1,0 +1,205 @@
+/* 1. Tell the browser where to find your downloaded font file */
+@font-face {
+    font-family: 'Anastasia Script';
+    src: url('AnastasiaScript.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+/* Reset & Papyrus Texture Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    /* Rich papyrus color background with a subtle paper fiber texture effect */
+    background-color: #f4efe2; 
+    background-image: 
+        radial-gradient(rgba(0,0,0,0.03) 1px, transparent 0),
+        radial-gradient(rgba(0,0,0,0.02) 2px, transparent 0);
+    background-size: 8px 8px, 16px 16px;
+    
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* Elegant Floral Decorations in the Corners of the Screen */
+body::before, body::after {
+    content: "🌸🌿";
+    position: absolute;
+    font-size: 3.5rem;
+    opacity: 0.8;
+    pointer-events: none;
+    filter: drop-shadow(1px 2px 3px rgba(0,0,0,0.1));
+}
+body::before { top: 20px; left: 20px; }
+body::after { bottom: 20px; right: 20px; transform: scaleX(-1); }
+
+/* The Invitation Card */
+.card {
+    background: #ffffff;
+    padding: 45px 35px;
+    border-radius: 4px; /* Slightly sharper corners for a premium paper card look */
+    box-shadow: 0 12px 28px rgba(75, 30, 63, 0.08), 0 2px 4px rgba(0, 0, 0, 0.05);
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+    border: 1px solid rgba(75, 30, 63, 0.1);
+    position: relative;
+}
+
+/* Inner card floral frames to decorate the edges beautifully */
+.card::before {
+    content: "🌿";
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 1.5rem;
+    opacity: 0.6;
+}
+.card::after {
+    content: "🌿";
+    position: absolute;
+    bottom: 10px;
+    left: 15px;
+    font-size: 1.5rem;
+    opacity: 0.6;
+    transform: rotate(180deg);
+}
+
+/* Cursive Font for the Larger Letters */
+h1 {
+    font-family: 'Anastasia Script', cursive, Georgia, serif;
+    font-size: 3.8rem;
+    margin-bottom: 20px;
+    color: #4B1E3f; /* Deep Velvet Purple */
+    font-weight: normal;
+    line-height: 1.2;
+}
+
+h3 {
+    font-family: 'Anastasia Script', cursive, Georgia, serif;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+    color: #4B1E3f; /* Deep Velvet Purple */
+    font-weight: normal;
+}
+
+/* Serif Font for the Smaller Letters & Interactive Elements */
+p {
+    font-family: 'Georgia', 'Garamond', 'Times New Roman', serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 30px;
+    color: #3d3d3d; /* Dark Charcoal */
+}
+
+.registry-text {
+    font-family: 'Georgia', 'Garamond', 'Times New Roman', serif;
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: #3d3d3d;
+}
+
+.btn {
+    font-family: 'Georgia', 'Garamond', 'Times New Roman', serif;
+    padding: 14px 25px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.05rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    width: 100%;
+}
+
+input[type="text"] {
+    font-family: 'Georgia', 'Garamond', 'Times New Roman', serif;
+    width: 100%;
+    padding: 12px 20px;
+    margin-bottom: 25px;
+    border: 2px solid #e2e2e2;
+    border-radius: 25px;
+    font-size: 1rem;
+    outline: none;
+    color: #3d3d3d;
+    background-color: #fafafa;
+}
+
+.registry-link {
+    font-family: 'Georgia', 'Garamond', 'Times New Roman', serif;
+    display: block;
+    padding: 14px 25px;
+    color: white;
+    text-decoration: none;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 1.05rem;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+/* Structural Styles & Colors */
+.btn-group {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+}
+
+.btn-yes {
+    background-color: #61365A; /* Deep Plum/Magenta */
+    color: white;
+}
+
+.btn-yes:hover {
+    background-color: #4B1E3f; 
+}
+
+.btn-no {
+    background-color: #e2e2e2;
+    color: #3d3d3d;
+}
+
+.btn-no:hover {
+    background-color: #d0d0d0;
+}
+
+input[type="text"]:focus {
+    border-color: #61365A;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.divider {
+    border: 0;
+    height: 1px;
+    background: #e2e2e2;
+    margin: 35px 0 25px 0;
+}
+
+.registry-links {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.registry-link:hover {
+    transform: translateY(-1px);
+    opacity: 0.9;
+}
+
+.amazon-btn {
+    background-color: #61365A; 
+}
+
+.venmo-btn {
+    background-color: #4B1E3f; 
+}

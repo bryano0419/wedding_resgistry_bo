@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Wedding RSVP</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="card" id="rsvp-card">
+        <div id="step-1">
+            <h1>Are you joining us?</h1>
+            <p>We can't wait to celebrate our special day with you. Please let us know if you can make it!</p>
+            <div class="btn-group">
+                <button class="btn btn-yes" onclick="handleInitialResponse(true)">Joyfully Attend</button>
+                <button class="btn btn-no" onclick="handleInitialResponse(false)">Regretfully Decline</button>
+            </div>
+        </div>
+
+        <div id="step-name" class="hidden">
+            <h1 id="name-heading">Please Enter Your Name</h1>
+            <p>Type your name exactly as it appears on your invitation so we can find you on our guest list.</p>
+            <input type="text" id="guest-name" placeholder="Your Name / Household Name" required>
+            <button class="btn btn-yes" onclick="submitResponse()">Submit RSVP</button>
+        </div>
+
+        <div id="step-thank-you-yes" class="hidden">
+            <h1>Thank You!</h1>
+            <p>Your RSVP has been received. We can't wait to see you there!</p>
+            <hr class="divider">
+            <h3>Registry & Gifts</h3>
+            <p class="registry-text">If you would like to honor us with a gift, we are registered here:</p>
+            <div class="registry-links">
+                <a href="https://www.amazon.com/wedding/registry/PLACEHOLDER" target="_blank" class="registry-link amazon-btn">Amazon Registry</a>
+                <a href="https://venmo.com/PLACEHOLDER" target="_blank" class="registry-link venmo-btn">Venmo Fund</a>
+            </div>
+        </div>
+
+        <div id="step-thank-you-no" class="hidden">
+            <h1>Thank You for Letting Us Know</h1>
+            <p>We will miss you, but we completely understand and appreciate your prompt response!</p>
+            <hr class="divider">
+            <h3>Registry & Gifts</h3>
+            <p class="registry-text">If you would still like to view our registry or contribute, you can find them below:</p>
+            <div class="registry-links">
+                <a href="https://www.amazon.com/wedding/registry/PLACEHOLDER" target="_blank" class="registry-link amazon-btn">Amazon Registry</a>
+                <a href="https://venmo.com/PLACEHOLDER" target="_blank" class="registry-link venmo-btn">Venmo Fund</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

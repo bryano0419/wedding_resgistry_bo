@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding RSVP Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        .card { max-width: 900px; margin: 40px auto; text-align: left; }
+        h1, h2 { font-family: sans-serif; color: #4B1E3f; margin-bottom: 15px; }
+        h2 { margin-top: 40px; font-size: 1.5rem; border-bottom: 2px solid #61365A; padding-bottom: 5px;}
+        .stats { display: flex; gap: 20px; margin-bottom: 20px; }
+        .stat-box { background: #f4efe2; padding: 15px; border-radius: 8px; font-weight: bold; font-family: serif; min-width: 120px; text-align: center;}
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-family: serif; }
+        th, td { padding: 12px; border-bottom: 1px solid #e2e2e2; text-align: left; }
+        th { background-color: #61365A; color: white; font-family: sans-serif; }
+        .status-not { color: #888; font-style: italic; }
+        .status-yes { color: #2e7d32; font-weight: bold; }
+        .status-no { color: #c62828; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>RSVP Dashboard</h1>
+        
+        <div class="stats">
+            <div class="stat-box">Total Responses: <span id="count-total">0</span></div>
+            <div class="stat-box" style="color: #2e7d32;">Yes: <span id="count-yes">0</span></div>
+            <div class="stat-box" style="color: #c62828;">No: <span id="count-no">0</span></div>
+        </div>
+
+        <h2>Master Invited Guest List</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Expected Invite Name</th>
+                    <th>RSVP Status</th>
+                    <th>Date Responded</th>
+                </tr>
+            </thead>
+            <tbody id="master-table-body">
+                </tbody>
+        </table>
+
+        <h2>Unlisted Write-In Guests</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Name Entered</th>
+                    <th>RSVP Status</th>
+                    <th>Date Responded</th>
+                </tr>
+            </thead>
+            <tbody id="writein-table-body">
+                </tbody>
+        </table>
+
+        <br><br>
+        <button class="btn btn-no" onclick="clearList()" style="width: auto; padding: 8px 20px;">Reset All RSVP Data</button>
+    </div>
+
+    <script>
+        const allowedGuestList = [
+            "Kathy and Erik", "Saul", "Alma and Roberto", "Whitney and Soren", 
+            "Carla and Daniel", "Ashley", "Steve", "Grandma Becky", "Grandma Dianna", 
+            "Grandpa Joe and Kris", "Jerry and Wendi", "Tiffany and Justin (Coop and Conner)", 
+            "Uncle Kris", "Aunt Marsha and Josh", "Joshy", "Jonah and Jaleigh", 
+            "Mason and Blaze", "Marcie and Raelyn", "Timmy and Rachel", "Boyd and Momma Birch (Vicki)", 
+            "Lexi or McMurt", "Billy and Cyd", "Uncle Rodger", "Uncle Clair and Aunt Karen", 
+            "Uncle Kip and Aunt Monica", "Uncle Frank and Aunt Kim", "Uncle Bruce and Aunt Cherl", 
+            "Uncle Harvey", "Aunt Tauna and Uncle Bob", "Aunt Maylin and Uncle Duff", 
+            "Aunt Rachelle and Uncle Bob", "Cousin Bri", "Cousin Holly, Jeff and Emma"
+        ];
+
+        window.onload = function() {
+            const submittedRSVPs = JSON.parse(localStorage.getItem('weddingGuestList')) || [];
+            const masterTable = document.getElementById('master-table-body');
+            const writeinTable = document.getElementById('writein-table-body');
+            
+            let yesCount = 0;
+            let noCount = 0;
+
+            // Track which submissions matched our master list
+            let matchedIndices = [];
+
+            // 1. Loop through your Master Invited List
+            allowedGuestList.forEach(invitedName => {
+                // Check if this specific master guest has submitted an RSVP
+                const matchIndex = submittedRSVPs.findIndex(rsvp => rsvp.name.toLowerCase() === invitedName.toLowerCase());
+                
+                const row = document.createElement('tr');
+                let statusHTML = `<span class="status-not">No Response Yet</span>`;
+                let dateHTML = "-";
+
+                if (matchIndex !== -1) {
+                    matchedIndices.push(matchIndex); // Save index so we know it's accounted for
+                    const guestResponse = submittedRSVPs[matchIndex];
+                    dateHTML = guestResponse.date;
+                    
+                    if (guestResponse.status === "Yes") {
+                        yesCount++;
+                        statusHTML = `<span class="status-yes">✅ Attending</span>`;
+                    } else {
+                        noCount++;
+                        statusHTML = `<span class="status-no">❌ Declined</span>`;
+                    }
+                }
+
+                row.innerHTML = `<td>${invitedName}</td><td>${statusHTML}</td><td>${dateHTML}</td>`;
+                masterTable.appendChild(row);
+            });
+
+            // 2. Loop through responses to find write-ins (anything NOT matched in step 1)
+            let writeInCount = 0;
+            submittedRSVPs.forEach((rsvp, index) => {
+                if (!matchedIndices.includes(index)) {
+                    writeInCount++;
+                    const row = document.createElement('tr');
+                    let statusHTML = "";
+                    
+                    if (rsvp.status === "Yes") {
+                        yesCount++;
+                        statusHTML = `<span class="status-yes">✅ Attending (Unlisted)</span>`;
+                    } else {
+                        noCount++;
+                        statusHTML = `<span class="status-no">❌ Declined (Unlisted)</span>`;
+                    }
+
+                    row.innerHTML = `<td>${rsvp.name}</td><td>${statusHTML}</td><td>${rsvp.date}</td>`;
+                    writeinTable.appendChild(row);
+                }
+            });
+
+            if (writeInCount === 0) {
+                writeinTable.innerHTML = `<tr><td colspan="3" style="text-align:center; color:#888;">No unlisted write-in guests.</td></tr>`;
+            }
+
+            // Update stats layout counters
+            document.getElementById('count-total').innerText = submittedRSVPs.length;
+            document.getElementById('count-yes').innerText = yesCount;
+            document.getElementById('count-no').innerText = noCount;
+        }
+
+        function clearList() {
+            if(confirm("Are you sure you want to permanently clear your guest responses?")) {
+                localStorage.removeItem('weddingGuestList');
+                window.location.reload();
+            }
+        }
+    </script>
+</body>
+</html>
