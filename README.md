@@ -4,18 +4,26 @@ Welcome to our wedding website repository! This project serves as a digital invi
 
 ## 🛠️ Project Structure
 * `index.html` - The public-facing guest RSVP portal.
-* `style.css` - Custom elegant wedding theme styles.
-* `script.js` - Front-end guest list matching and data handling logic.
+* `style.css` - Custom elegant wedding theme styles with papyrus texture and vine framing.
+* `script.js` - Front-end guest list matching and live Google Sheets API syncing.
 * `admin.html` - Private tracking dashboard to check responses.
 
 ## 🚀 Live Deployment
-This website is hosted live using **Netlify** and automatically deploys changes whenever updates are pushed to the `main` branch on GitHub.
+This website is hosted live using **Netlify** and automatically redeploys changes whenever updates are pushed to the `main` branch on GitHub.
 
 * **Live Guest Portal:** [https://weddingregistrybo.netlify.app](https://weddingregistrybo.netlify.app)
+
+---
+
+## 📊 Live Cloud Database
+The RSVP submissions are wired to a central Google Sheet spreadsheet via Google Apps Script. 
+
+* **Active Web App API Endpoint:** [https://script.google.com/macros/s/AKfycbzpOMYI5Wn29Kui31x15E7-asZQWEil2J6C6YIwR8q4PzyuTfh4Kdt29Fvlg-TSnJxX6g/exec](https://script.google.com/macros/s/AKfycbzpOMYI5Wn29Kui31x15E7-asZQWEil2J6C6YIwR8q4PzyuTfh4Kdt29Fvlg-TSnJxX6g/exec)
+* **Google Script Deployment ID:** `AKfycbzpOMYI5Wn29Kui31x15E7-asZQWEil2J6C6YIwR8q4PzyuTfh4Kdt29Fvlg-TSnJxX6g`
 
 ---
 
 ## 🔒 Host/Organizer Access Only
 * **Private Admin Dashboard:** [https://weddingregistrybo.netlify.app/admin.html](https://weddingregistrybo.netlify.app/admin.html)
 
-> ⚠️ **Reminder:** Because guest RSVP data is securely stored locally via the browser's `localStorage`, you must open and review this dashboard link using the **exact same physical device/browser** where guest testing or responses are being captured to see the populated datasets.
+> 💡 **Note:** Unlike the older version, this admin dashboard pulls data instantly from your live cloud spreadsheet. You can now open this dashboard on **any device** (phone, computer, tablet) anywhere in the world, and it will accurately reflect live submissions in real-time!
